@@ -42,7 +42,6 @@ public class RecordResource {
         entity.setArtist(record.getArtist());
         entity.setYear(record.getYear());
         entity.setGenre(record.getGenre());
-        entity.setFormat(record.getFormat());
         return entity;
     }
 

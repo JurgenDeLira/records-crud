@@ -7,10 +7,11 @@ import jakarta.validation.constraints.Max;
 import jakarta.validation.constraints.Min;
 import jakarta.validation.constraints.NotBlank;
 
+import java.util.ArrayList;
+import java.util.List;
+
 @Entity
 public class Record extends PanacheEntity {
-
-
 
     @NotBlank
     private String albumName;
@@ -22,11 +23,8 @@ public class Record extends PanacheEntity {
     @Max(2100)
     private int year;
 
-    @NotBlank
-    private String genre;
-
-    @Enumerated(EnumType.STRING)
-    private Format format;
+    @ElementCollection
+    private List<String> genre = new ArrayList<>();
 
     // Getters and setters
 
@@ -54,23 +52,12 @@ public class Record extends PanacheEntity {
         this.year = year;
     }
 
-    public String getGenre() {
+    public List<String> getGenre() {
         return genre;
     }
 
-    public void setGenre(String genre) {
+    public void setGenre(List<String> genre) {
         this.genre = genre;
     }
 
-    public Format getFormat() {
-        return format;
-    }
-
-    public void setFormat(Format format) {
-        this.format = format;
-    }
-}
-
-enum Format {
-    VINYL, CD, DIGITAL, CASSETTE, EIGHT_TRACK
 }
