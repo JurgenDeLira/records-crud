@@ -1,9 +1,13 @@
 package org.ms.record.api;
 
-import jakarta.transaction.Transactional;
+import io.smallrye.mutiny.Uni;
+import jakarta.inject.Inject;
+
 import jakarta.ws.rs.*;
 import jakarta.ws.rs.core.MediaType;
+import jakarta.ws.rs.core.Response;
 import org.ms.record.entity.Record;
+import org.ms.record.service.RecordService;
 
 import java.util.List;
 
@@ -12,47 +16,36 @@ import java.util.List;
 @Consumes(MediaType.APPLICATION_JSON)
 public class RecordResource {
 
-    @GET
-    public List<Record> getAll() {
-        return Record.listAll();
-    }
-
-    @GET
-    @Path("/{id}")
-    public Record get(@PathParam("id") Long id) {
-        return Record.findById(id);
-    }
+    @Inject
+    RecordService recordService;
 
     @POST
-    @Transactional
-    public Record create(Record record) {
-        record.persist();
-        return record;
+    public Uni<Response> create(Record record) {
+        return recordService.create(record)
+                .onItem().transform(id -> Response.ok(id).status(Response.Status.CREATED).build());
     }
 
-    @PUT
+    @GET
     @Path("/{id}")
-    @Transactional
-    public Record update(@PathParam("id") Long id, Record record) {
-        Record entity = Record.findById(id);
-        if (entity == null) {
-            throw new WebApplicationException("Record with id " + id + " not found", 404);
-        }
-        entity.setAlbumName(record.getAlbumName());
-        entity.setArtist(record.getArtist());
-        entity.setYear(record.getYear());
-        entity.setGenre(record.getGenre());
-        return entity;
+    public Uni<Record> getById(@PathParam("id") Long id){
+        return recordService.findById(id);
+    }
+
+    @GET
+    public Uni<List<Record>> getAll(){
+        return recordService.findAll();
     }
 
     @DELETE
     @Path("/{id}")
-    @Transactional
-    public void delete(@PathParam("id") Long id) {
-        Record entity = Record.findById(id);
-        if (entity == null) {
-            throw new WebApplicationException("Record with id " + id + " not found", 404);
-        }
-        entity.delete();
+    public Uni<Response> delete (@PathParam("id") Long id) {
+        return recordService.delete(id)
+                .onItem().transform(deleted -> {
+                    if (deleted) {
+                        return Response.noContent().build();
+                    } else {
+                        return Response.status(Response.Status.NOT_FOUND).build();
+                    }
+                });
     }
 }

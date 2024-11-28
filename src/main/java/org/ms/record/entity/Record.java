@@ -7,11 +7,17 @@ import jakarta.validation.constraints.Max;
 import jakarta.validation.constraints.Min;
 import jakarta.validation.constraints.NotBlank;
 
+
+
 import java.util.ArrayList;
 import java.util.List;
 
 @Entity
-public class Record extends PanacheEntity {
+public class Record{
+
+    @Id
+    @GeneratedValue(strategy = GenerationType.IDENTITY)
+    private Long id;
 
     @NotBlank
     private String albumName;
@@ -27,6 +33,15 @@ public class Record extends PanacheEntity {
     private List<String> genre = new ArrayList<>();
 
     // Getters and setters
+
+
+    public Long getId() {
+        return id;
+    }
+
+    public void setId(Long id) {
+        this.id = id;
+    }
 
     public String getAlbumName() {
         return albumName;
