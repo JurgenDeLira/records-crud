@@ -1,32 +1,54 @@
 package org.ms.record.entity;
 
+import io.smallrye.mutiny.Uni;
+import jakarta.persistence.Entity;
+import jakarta.persistence.GeneratedValue;
+import jakarta.persistence.GenerationType;
+import jakarta.persistence.Id;
+import io.quarkus.hibernate.orm.panache.PanacheEntityBase;
 
-import io.quarkus.hibernate.orm.panache.PanacheEntity;
-import jakarta.persistence.*;
-import jakarta.validation.constraints.Max;
-import jakarta.validation.constraints.Min;
-import jakarta.validation.constraints.NotBlank;
-
-import java.util.ArrayList;
 import java.util.List;
 
 @Entity
-public class Record extends PanacheEntity {
+public class Record extends PanacheEntityBase {
 
-    @NotBlank
-    private String albumName;
+    @Id
+    @GeneratedValue(strategy = GenerationType.IDENTITY)
+    public Long id;
 
-    @NotBlank
-    private String artist;
+    public String albumName;
+    public String artist;
+    public int year;
+    public String genre;
 
-    @Min(1900)
-    @Max(2100)
-    private int year;
+    // Buscar todos los registros de forma reactiva
+    public static Uni<List<Record>> findAllRecords() {
+        return findAll().list(); // Devuelve una lista reactiva de registros
+    }
 
-    @ElementCollection
-    private List<String> genre = new ArrayList<>();
+    // Persistir el registro de forma reactiva
+    public Uni<Void> persistRecord() {
+        return persist().replaceWithVoid(); // Devuelve Uni<Void> para indicar que la persistencia ha terminado
+    }
 
-    // Getters and setters
+    // Buscar un registro por su id de forma reactiva
+    public static Uni<Record> findById(Long id) {
+        return find("id", id).firstResult(); // Devuelve Uni<Record>, puede ser null si no existe
+    }
+
+    // Eliminar el registro de forma reactiva
+    public Uni<Void> deleteRecord() {
+        return delete().replaceWithVoid(); // Devuelve Uni<Void> para indicar que la eliminación ha terminado
+    }
+
+    // Métodos setters y getters
+    public Long getId() {
+        return id;
+    }
+
+    public void setId(Long id) {
+        this.id = id;
+    }
 
     public String getAlbumName() {
         return albumName;
@@ -52,12 +74,11 @@ public class Record extends PanacheEntity {
         this.year = year;
     }
 
-    public List<String> getGenre() {
+    public String getGenre() {
         return genre;
     }
 
-    public void setGenre(List<String> genre) {
+    public void setGenre(String genre) {
         this.genre = genre;
     }
-
 }

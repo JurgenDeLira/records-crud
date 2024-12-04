@@ -1,58 +1,49 @@
 package org.ms.record.api;
 
-import jakarta.transaction.Transactional;
+import io.smallrye.mutiny.Uni;
 import jakarta.ws.rs.*;
 import jakarta.ws.rs.core.MediaType;
 import org.ms.record.entity.Record;
+import org.ms.record.service.RecordService;
 
-import java.util.List;
+import javax.inject.Inject;
 
 @Path("/records")
 @Produces(MediaType.APPLICATION_JSON)
 @Consumes(MediaType.APPLICATION_JSON)
 public class RecordResource {
 
+    @Inject
+    RecordService recordService; // Inyectamos el servicio
+
     @GET
-    public List<Record> getAll() {
-        return Record.listAll();
+    public Uni<List<Record>> getAll() {
+        return recordService.getAllRecords(); // Delegamos la operación al servicio
     }
 
     @GET
     @Path("/{id}")
-    public Record get(@PathParam("id") Long id) {
-        return Record.findById(id);
+    public Uni<Record> get(@PathParam("id") Long id) {
+        return recordService.getRecordById(id); // Delegamos la operación al servicio
     }
 
     @POST
     @Transactional
-    public Record create(Record record) {
-        record.persist();
-        return record;
+    public Uni<Record> create(Record record) {
+        return recordService.createRecord(record); // Delegamos la creación al servicio
     }
 
     @PUT
     @Path("/{id}")
     @Transactional
-    public Record update(@PathParam("id") Long id, Record record) {
-        Record entity = Record.findById(id);
-        if (entity == null) {
-            throw new WebApplicationException("Record with id " + id + " not found", 404);
-        }
-        entity.setAlbumName(record.getAlbumName());
-        entity.setArtist(record.getArtist());
-        entity.setYear(record.getYear());
-        entity.setGenre(record.getGenre());
-        return entity;
+    public Uni<Record> update(@PathParam("id") Long id, Record record) {
+        return recordService.updateRecord(id, record); // Delegamos la actualización al servicio
     }
 
     @DELETE
     @Path("/{id}")
     @Transactional
-    public void delete(@PathParam("id") Long id) {
-        Record entity = Record.findById(id);
-        if (entity == null) {
-            throw new WebApplicationException("Record with id " + id + " not found", 404);
-        }
-        entity.delete();
+    public Uni<Void> delete(@PathParam("id") Long id) {
+        return recordService.deleteRecord(id); // Delegamos la eliminación al servicio
     }
 }
