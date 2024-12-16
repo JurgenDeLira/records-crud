@@ -1,17 +1,22 @@
 package org.ms.record.entity;
 
 
-import io.quarkus.hibernate.orm.panache.PanacheEntity;
+import io.quarkus.hibernate.reactive.panache.PanacheEntityBase;
 import jakarta.persistence.*;
 import jakarta.validation.constraints.Max;
 import jakarta.validation.constraints.Min;
 import jakarta.validation.constraints.NotBlank;
+import jakarta.validation.constraints.NotEmpty;
 
 import java.util.ArrayList;
 import java.util.List;
 
 @Entity
-public class Record extends PanacheEntity {
+public class Record extends PanacheEntityBase {
+
+    @Id
+    @GeneratedValue(strategy = GenerationType.IDENTITY)
+    private Long id;
 
     @NotBlank
     private String albumName;
@@ -23,6 +28,7 @@ public class Record extends PanacheEntity {
     @Max(2100)
     private int year;
 
+    @NotEmpty
     @ElementCollection
     private List<String> genre = new ArrayList<>();
 
